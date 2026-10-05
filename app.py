@@ -3,6 +3,7 @@ import google.generativeai as genai
 from PIL import Image
 import pandas as pd
 import time
+import json
 
 # --- 1. Page Configuration ---
 st.set_page_config(page_title="Quality Inspector AI", page_icon="🏭", layout="wide")
@@ -19,13 +20,42 @@ else:
     st.stop()
 
 # --- 3. Model Configuration ---
-current_model = "models/gemini-flash-latest"
+current_model = "gemini-2.5-flash"
 
 # Sidebar Information
 with st.sidebar:
     st.header("System Status")
     st.success("✅ Server Online")
     st.info(f"🤖 Active Model: `{current_model}`")
+
+
+def parse_inspection_json(text):
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.split("```", 2)[1]
+        if cleaned.lower().startswith("json"):
+            cleaned = cleaned[4:]
+        cleaned = cleaned.strip()
+
+    data = json.loads(cleaned)
+    status = str(data.get("status", "")).strip().upper()
+    if status not in ("PASS", "FAIL"):
+        raise ValueError("Invalid status")
+
+    confidence = data.get("confidence", "")
+    try:
+        confidence = float(confidence)
+    except (TypeError, ValueError):
+        confidence = ""
+
+    return {
+        "status": status,
+        "defect_type": str(data.get("defect_type", "")).strip(),
+        "severity": str(data.get("severity", "")).strip(),
+        "confidence": confidence,
+        "reason": str(data.get("reason", "")).strip(),
+    }
+
 
 # --- 4. Main Application Loop ---
 uploaded_files = st.file_uploader("Upload Component Images", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
@@ -41,6 +71,16 @@ if uploaded_files:
         model = genai.GenerativeModel(current_model)
         inspection_results = []
 
+        prompt = """
+        Analyze this industrial image for defects (rust, cracks, dents, damage).
+        Return only JSON with these keys:
+        status: PASS or FAIL
+        defect_type: rust, crack, dent, none, other
+        severity: none, cosmetic, minor, critical
+        confidence: a number from 0 to 1
+        reason: one short sentence
+        """
+
         for file in uploaded_files:
             col1, col2 = st.columns([1, 2])
 
@@ -49,60 +89,68 @@ if uploaded_files:
 
             with col2:
                 with st.spinner("Analyzing component..."):
-                    try:
-                        prompt = """
-                        Analyze this industrial image for defects (rust, cracks, damage).
-                        Output strictly in this format:
-                        Status: PASS
-                        OR
-                        Status: FAIL - [Reason]
-                        """
+                    status = "ERROR"
+                    defect_type = ""
+                    severity = ""
+                    confidence = ""
+                    reason = ""
+                    max_attempts = 3
 
-                        response = model.generate_content([prompt, img])
-                        text = response.text.strip()
+                    for attempt in range(max_attempts):
+                        try:
+                            response = model.generate_content([prompt, img])
+                            text = response.text.strip()
+                            try:
+                                parsed = parse_inspection_json(text)
+                                status = parsed["status"]
+                                defect_type = parsed["defect_type"]
+                                severity = parsed["severity"]
+                                confidence = parsed["confidence"]
+                                reason = parsed["reason"]
+                            except Exception:
+                                status = "REVIEW"
+                                defect_type = ""
+                                severity = ""
+                                confidence = ""
+                                reason = "Could not parse model output."
 
-                        if "Status: PASS" in text:
-                            status = "PASS"
-                            reason = "✅ No defects detected. Component is safe."
-                            st.success("**STATUS: PASS**")
-                            st.caption(reason)
+                            if status == "PASS":
+                                st.success("**STATUS: PASS**")
+                            elif status == "FAIL":
+                                st.error("**STATUS: FAIL**")
+                            else:
+                                st.warning("⚠️ Manual Review Needed")
 
-                        elif "Status: FAIL" in text:
-                            status = "FAIL"
-                            reason = text.split("-")[-1].strip() if "-" in text else text
-                            st.error("**STATUS: FAIL**")
-                            st.markdown(f"**Defect:** {reason}")
+                            st.write(f"**Defect type:** {defect_type or '—'}")
+                            st.write(f"**Severity:** {severity or '—'}")
+                            st.write(f"**Confidence:** {confidence if confidence != '' else '—'}")
+                            if reason:
+                                st.caption(reason)
+                            break
 
-                        else:
-                            status = "REVIEW"
-                            reason = text
-                            st.warning(f"⚠️ Manual Review Needed: {text}")
+                        except Exception as e:
+                            err_msg = str(e)
+                            if "429" in err_msg and attempt < max_attempts - 1:
+                                time.sleep(5)
+                                continue
 
-                        inspection_results.append({
-                            "File Name": file.name,
-                            "Status": status,
-                            "Details": reason
-                        })
+                            if "429" in err_msg:
+                                st.error("⚠️ Quota Limit Reached. Please use a new API Key.")
+                                status = "QUOTA_ERROR"
+                                reason = "Daily limit reached."
+                            else:
+                                st.error(f"Error: {err_msg}")
+                                status = "ERROR"
+                                reason = err_msg
 
-                        time.sleep(10)
-
-                    except Exception as e:
-                        err_msg = str(e)
-                        if "429" in err_msg:
-                            st.error("⚠️ Quota Limit Reached. Please use a new API Key.")
-                            status = "QUOTA_ERROR"
-                            reason = "Daily limit reached."
-                        else:
-                            st.error(f"Error: {err_msg}")
-                            status = "ERROR"
-                            reason = err_msg
-
-                        inspection_results.append({
-                            "File Name": file.name,
-                            "Status": status,
-                            "Details": reason
-                        })
-                        time.sleep(5)
+                    inspection_results.append({
+                        "File Name": file.name,
+                        "Status": status,
+                        "Defect Type": defect_type,
+                        "Severity": severity,
+                        "Confidence": confidence,
+                        "Details": reason
+                    })
 
         # --- 5. Final Report ---
         if inspection_results:
