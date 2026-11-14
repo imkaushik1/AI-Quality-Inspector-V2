@@ -1,46 +1,76 @@
-﻿# AI Quality Inspector
+# 🏭 AI Quality Inspector
 
-LLM-based defect inspection for small casting shops, with eval-driven quality checks.
+### LLM-based defect inspection for small casting shops, with eval-driven quality checks
 
+![Python](https://img.shields.io/badge/Python-3.13-blue) ![Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-red) ![Model](https://img.shields.io/badge/Model-Gemini%202.5%20Flash-green) ![Status](https://img.shields.io/badge/Status-Eval%20in%20progress-orange)
 
-## Problem and user
+🚀 **Live demo (V1, earlier version):** https://ai-quality-inspector-pro.streamlit.app/
 
-Small casting and machining shops rely on manual visual inspection. It is slow, inconsistent between inspectors, and tiring, so small defects (pinholes, blow holes, burrs) get missed. Traditional camera-AI needs thousands of labeled images and retraining for every new part, which these shops cannot afford.
+---
+
+## 🛑 The Problem
+
+- **Manual inspection is slow and inconsistent:** inspectors tire, and small defects (pinholes, blow holes, burrs) get missed.
+- **Traditional camera-AI is rigid:** it needs thousands of labeled images and retraining for every new part.
+- **Small shops cannot afford that:** no ML team, no labeled data.
 
 **Primary user:** QA supervisor at a small casting or machining shop (30-100 people, no ML team).
 
-**Key concern:** a defective part that reaches the customer costs far more than a false alarm. So the main guardrail metric is the **false-pass rate** (defects wrongly marked PASS).
+**Key concern:** a defective part reaching the customer costs far more than a false alarm. So the main guardrail metric is the **false-pass rate** (defects wrongly marked PASS).
 
-## What it does
+---
 
-Upload a part image -> Gemini returns structured JSON (status, defect type, severity, confidence, reason) -> PASS / FAIL / REVIEW result -> downloadable CSV report.
+## 💡 What It Does
 
-## Evaluation (in progress)
+| Step | What happens |
+|---|---|
+| 📷 Input | Upload an image of a casting part |
+| 🧠 Processing | Gemini analyses the image and returns structured JSON |
+| 📋 Output | Status (PASS / FAIL / REVIEW), defect type, severity, confidence, reason |
+| 📥 Report | Downloadable CSV of all inspections |
 
-- Dataset: 50 labeled images (25 defective, 25 good) sampled from a public casting-defect dataset (Kaggle, casting product image data).
-- Model: gemini-2.5-flash (pinned). FAIL is the positive class.
-- Metrics: recall, precision, false-pass rate, false-alarm rate, confusion matrix. REVIEW and API errors are counted separately.
-- Status: running in daily batches because the free API tier allows only 20 requests per day.
+---
 
-Final results table: coming soon (will be reported with n= and class split).
+## 📊 Evaluation (in progress)
 
-## Key finding so far
+| Item | Detail |
+|---|---|
+| Dataset | 50 labeled images (25 defective, 25 good), Kaggle casting product image data |
+| Model | gemini-2.5-flash (pinned), FAIL = positive class |
+| Metrics | Recall, precision, false-pass rate, false-alarm rate, confusion matrix |
+| Handling errors | REVIEW and API errors are counted separately |
+| Status | Running in daily batches (free tier: 20 requests/day) |
 
-On one defective part, the model answered PASS with 0.95 confidence. So confidence alone is not a safe rule for deciding what goes to human review.
+**Final results table: coming soon** (will be reported with n= and class split).
 
-## Limitations
+---
 
-- Small sample (50 images) and a single dataset (casting), so results are an early signal, not a production claim.
+## 🔍 Key Finding So Far
+
+On one defective part, the model answered **PASS with 0.95 confidence**. Confidence alone is therefore not a safe rule for deciding what goes to human review.
+
+---
+
+## ⚠️ Limitations
+
+- Small sample (50 images) and a single dataset, so results are an early signal, not a production claim.
 - Free-tier quota (20 requests/day) forced batched evaluation.
 - The gemini-flash-latest alias caused request timeouts, so the model is pinned to a fixed version.
 - Uses the deprecated google-generativeai SDK; migration to google-genai is planned.
 
-## Roadmap
+---
 
-- Now: finish the 50-image eval and write the eval report.
-- Next: human review screen, SQLite logging and SQL analytics, prompt A/B test (offline).
-- Later: RAG over inspection SOPs, migrate to google-genai SDK, edge deployment.
+## 🗺️ Roadmap
 
-## Built by
+| When | What |
+|---|---|
+| Now | Finish the 50-image eval and write the eval report |
+| Next | Human review screen, SQLite logging and SQL analytics, prompt A/B test (offline) |
+| Later | RAG over inspection SOPs, migrate to google-genai, edge deployment |
 
-Himanshu Sharma, aspiring AI Product Manager. Product owner for problem definition, metrics and evaluation design; code built with AI assistance.
+---
+
+## 👨‍💻 Built By
+
+**Himanshu Sharma**
+*Aspiring AI Product Manager. Product owner for problem definition, metrics and evaluation design; code built with AI assistance.*
