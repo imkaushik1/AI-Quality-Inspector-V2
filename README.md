@@ -2,7 +2,6 @@
 
 LLM-based defect inspection for small casting shops, with eval-driven quality checks.
 
-**Live demo (V1, earlier version):** https://ai-quality-inspector-pro.streamlit.app/
 
 ## Problem and user
 
