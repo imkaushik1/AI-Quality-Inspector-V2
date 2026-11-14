@@ -1,14 +1,13 @@
-# 🏭 AI Quality Inspector
+﻿# ðŸ­ AI Quality Inspector
 
 ### LLM-based defect inspection for small casting shops, with eval-driven quality checks
 
 ![Python](https://img.shields.io/badge/Python-3.13-blue) ![Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-red) ![Model](https://img.shields.io/badge/Model-Gemini%202.5%20Flash-green) ![Status](https://img.shields.io/badge/Status-Eval%20in%20progress-orange)
 
-🚀 **Live demo (V1, earlier version):** https://ai-quality-inspector-pro.streamlit.app/
 
 ---
 
-## 🛑 The Problem
+## ðŸ›‘ The Problem
 
 - **Manual inspection is slow and inconsistent:** inspectors tire, and small defects (pinholes, blow holes, burrs) get missed.
 - **Traditional camera-AI is rigid:** it needs thousands of labeled images and retraining for every new part.
@@ -20,18 +19,18 @@
 
 ---
 
-## 💡 What It Does
+## ðŸ’¡ What It Does
 
 | Step | What happens |
 |---|---|
-| 📷 Input | Upload an image of a casting part |
-| 🧠 Processing | Gemini analyses the image and returns structured JSON |
-| 📋 Output | Status (PASS / FAIL / REVIEW), defect type, severity, confidence, reason |
-| 📥 Report | Downloadable CSV of all inspections |
+| ðŸ“· Input | Upload an image of a casting part |
+| ðŸ§  Processing | Gemini analyses the image and returns structured JSON |
+| ðŸ“‹ Output | Status (PASS / FAIL / REVIEW), defect type, severity, confidence, reason |
+| ðŸ“¥ Report | Downloadable CSV of all inspections |
 
 ---
 
-## 📊 Evaluation (in progress)
+## ðŸ“Š Evaluation (in progress)
 
 | Item | Detail |
 |---|---|
@@ -45,13 +44,13 @@
 
 ---
 
-## 🔍 Key Finding So Far
+## ðŸ” Key Finding So Far
 
 On one defective part, the model answered **PASS with 0.95 confidence**. Confidence alone is therefore not a safe rule for deciding what goes to human review.
 
 ---
 
-## ⚠️ Limitations
+## âš ï¸ Limitations
 
 - Small sample (50 images) and a single dataset, so results are an early signal, not a production claim.
 - Free-tier quota (20 requests/day) forced batched evaluation.
@@ -60,7 +59,7 @@ On one defective part, the model answered **PASS with 0.95 confidence**. Confide
 
 ---
 
-## 🗺️ Roadmap
+## ðŸ—ºï¸ Roadmap
 
 | When | What |
 |---|---|
@@ -70,7 +69,7 @@ On one defective part, the model answered **PASS with 0.95 confidence**. Confide
 
 ---
 
-## 👨‍💻 Built By
+## ðŸ‘¨â€ðŸ’» Built By
 
 **Himanshu Sharma**
 *Aspiring AI Product Manager. Product owner for problem definition, metrics and evaluation design; code built with AI assistance.*
