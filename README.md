@@ -2,6 +2,8 @@
 
 LLM-based defect inspection for small casting shops, with eval-driven quality checks.
 
+**Live demo (V1, earlier version):** https://ai-quality-inspector-pro.streamlit.app/
+
 ## Problem and user
 
 Small casting and machining shops rely on manual visual inspection. It is slow, inconsistent between inspectors, and tiring, so small defects (pinholes, blow holes, burrs) get missed. Traditional camera-AI needs thousands of labeled images and retraining for every new part, which these shops cannot afford.
