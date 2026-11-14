@@ -5,7 +5,7 @@ from pathlib import Path
 
 import google.generativeai as genai
 
-MODEL_NAME = "gemini-flash-latest"
+MODEL_NAME = "gemini-2.5-flash"
 PROMPT = """
         Analyze this industrial image for defects (rust, cracks, dents, damage).
         Return only JSON with these keys:
@@ -93,18 +93,32 @@ def _result(status, defect_type="", severity="", confidence="", reason=""):
     }
 
 
+def _is_timeout_error(exc):
+    err_msg = str(exc).lower()
+    timeout_markers = (
+        "timeout",
+        "timed out",
+        "deadline exceeded",
+        "deadlineexceeded",
+    )
+    return isinstance(exc, TimeoutError) or any(marker in err_msg for marker in timeout_markers)
+
+
 def inspect_image(img):
     api_key = get_api_key()
     if not api_key:
         return _result("ERROR", reason="API Key not found.")
 
-    genai.configure(api_key=api_key)
+    genai.configure(api_key=api_key, transport="rest")
     model = genai.GenerativeModel(MODEL_NAME)
     max_attempts = 3
 
     for attempt in range(max_attempts):
         try:
-            response = model.generate_content([PROMPT, img])
+            response = model.generate_content(
+                [PROMPT, img],
+                request_options={"timeout": 60},
+            )
             text = response.text.strip()
             try:
                 return parse_inspection_json(text)
@@ -112,6 +126,9 @@ def inspect_image(img):
                 return _result("REVIEW", reason="Could not parse model output.")
         except Exception as e:
             err_msg = str(e)
+            if _is_timeout_error(e):
+                return _result("ERROR", reason=err_msg)
+
             if "429" in err_msg and attempt < max_attempts - 1:
                 time.sleep(5)
                 continue
