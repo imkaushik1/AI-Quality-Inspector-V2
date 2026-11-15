@@ -6,6 +6,8 @@
 
 🚀 **Live demo:** https://ai-quality-inspector-pro.streamlit.app/
 
+📄 **Docs:** [PRD](docs/PRD.md) | [Failure modes](docs/failure_modes.md)
+
 ---
 
 ## 🛑 The Problem
