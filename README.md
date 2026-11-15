@@ -62,16 +62,6 @@ On one defective part, the model answered **PASS with 0.95 confidence**. Confide
 
 ---
 
-## 🗺️ Roadmap
-
-| When | What |
-|---|---|
-| Now | Finish the 50-image eval and write the eval report |
-| Next | Human review screen, SQLite logging and SQL analytics, prompt A/B test (offline) |
-| Later | RAG over inspection SOPs, migrate to google-genai, edge deployment |
-
----
-
 ## 👨‍💻 Built By
 
 **Himanshu Sharma**
