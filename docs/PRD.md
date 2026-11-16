@@ -27,15 +27,15 @@ Manual inspection in small casting shops is slow and inconsistent, and tradition
 
 ## 6. Success metrics
 
-| Type | Metric | Definition | Target (assumption) | Current (early, n=23) |
+| Type | Metric | Definition | Target (assumption) | Current (partial, n=44) |
 |---|---|---|---|---|
-| North Star | Defect catch rate (recall) | Defective parts correctly flagged / all defective parts | As high as possible | 12 of 12 |
-| Guardrail (hard limit) | False-pass rate | Defective parts marked PASS / all defective parts | Near 0, never above 5% | 0 of 12 |
-| Guardrail | False-alarm rate | Good parts marked FAIL / all good parts | Under 20% | 4 of 11 (36%) |
+| North Star | Defect catch rate (recall) | Defective parts correctly flagged / all defective parts | As high as possible | 20 of 23 (87%) |
+| Guardrail (hard limit) | False-pass rate | Defective parts marked PASS / all defective parts | Near 0, never above 5% | 3 of 23 (13%) |
+| Guardrail | False-alarm rate | Good parts marked FAIL / all good parts | Under 20% | 10 of 21 (48%) |
 | Guardrail | Cost per inspection | API cost per image | Not measured yet | n/a |
 | Guardrail | Latency | Seconds per image | Not measured yet | n/a |
 
-*Targets are assumptions to be validated with QA users. Early numbers come from a small, partly complete eval and are not a production claim.*
+*Targets are assumptions to be validated with QA users. Current numbers come from a partial eval (44 of 50 images) and are not a production claim. Both guardrails are currently missed.*
 
 ## 7. Requirements
 - Structured JSON output: status, defect type, severity, confidence, reason
@@ -45,18 +45,19 @@ Manual inspection in small casting shops is slow and inconsistent, and tradition
 - Planned: human review screen, SQLite logging, offline prompt A/B test
 
 ## 8. Evidence so far
-- Eval set: 50 labeled images (25 defective, 25 good), Kaggle casting dataset. Model: gemini-2.5-flash.
-- Early batch: all defects caught, but 4 of 11 good parts flagged FAIL for minor surface irregularities.
-- Earlier run (different model alias): one defective part marked PASS with 0.95 confidence, so confidence alone is not a safe routing rule.
+- Eval set: 50 labeled images (25 defective, 25 good), Kaggle casting dataset. Model: gemini-2.5-flash. 44 images evaluated so far.
+- Result: 20 of 23 defects caught; 3 missed, all at 0.95 confidence. 10 of 21 good parts flagged FAIL for minor surface irregularities.
+- The current prompt does not meet the assumed targets (false-pass under 5%, false-alarm under 20%). See [eval report](eval_report.md).
+- An earlier smaller batch (n=23) looked better than this larger sample, a reminder that small samples mislead.
 - Final numbers will be added after all 50 images are evaluated.
-
+  
 ## 9. Risks
 
 | Risk | Impact | Mitigation |
 |---|---|---|
 | Missed defect (wrong PASS) | Defective part reaches customer | Hard limit on false-pass rate; human review for risky cases |
 | Over-flagging natural casting texture | Inspectors lose time, distrust the tool | Prompt B experiment with a clear definition of normal vs defective |
-| Overconfident outputs | Confidence cannot be used alone for routing | Review rules beyond confidence |
+| Overconfident outputs | 3 missed defects were all marked PASS at 0.95 confidence, so confidence cannot be used alone for routing | Review rules beyond confidence |
 | Free-tier quota and timeouts | Slow or interrupted evaluation | Batched runs, pinned model, timeouts |
 | Deprecated SDK | Future breakage | Migrate to google-genai |
 | Small, single-dataset eval | Results may not generalize | Report n= and limitations honestly |
