@@ -6,7 +6,7 @@
 
 🚀 **Live demo:** https://ai-quality-inspector-pro.streamlit.app/
 
-📄 **Docs:** [PRD](docs/PRD.md) | [Failure modes](docs/failure_modes.md)
+📄 **Docs:** [PRD](docs/PRD.md) | [Eval report](docs/eval_report.md) | [Failure modes](docs/failure_modes.md)
 
 ---
 
@@ -43,13 +43,14 @@
 | Handling errors | REVIEW and API errors are counted separately |
 | Status | Running in daily batches (free tier: 20 requests/day) |
 
-**Final results table: coming soon** (will be reported with n= and class split).
+**Partial results (n=44 of 50 images):** recall 87% (20 of 23 defects caught), false-pass rate 13% (3 of 23), false-alarm rate 48% (10 of 21). Both guardrails are currently missed. See the [eval report](docs/eval_report.md). Final numbers after the remaining 6 images.
 
 ---
 
 ## 🔍 Key Finding So Far
 
-On one defective part, the model answered **PASS with 0.95 confidence**. Confidence alone is therefore not a safe rule for deciding what goes to human review.
+- On gemini-2.5-flash, 3 of 23 defective parts were marked PASS, all at 0.95 confidence. Confidence alone is not a safe rule for human-review routing.
+- 10 of 21 good parts were flagged FAIL for minor surface irregularities, so the prompt likely treats natural casting texture as damage.
 
 ---
 
