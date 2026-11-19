@@ -76,4 +76,4 @@ Against my assumed targets (false-pass under 5%, false-alarm under 20%), the bas
 ## 👨‍💻 Built By
 
 **Himanshu Sharma**
-*Aspiring AI Product Manager. Product owner for problem definition, metrics and evaluation design; code built with AI assistance.*
+*Aspiring AI Product Manager.*
