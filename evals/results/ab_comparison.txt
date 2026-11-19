@@ -1,0 +1,16 @@
+1. Paired comparison (same images, both prompts clean)
+prompt  images  defects  missed  good  false_alarms
+     A      23       11       0    12             4
+     B      23       11       1    12             1
+
+2. Images where A and B disagree
+            filename label a_pred b_pred  a_conf  b_conf
+cast_def_0_5205.jpeg  FAIL   FAIL   PASS    0.85    0.95
+ cast_ok_0_2472.jpeg  PASS   FAIL   PASS    0.80    1.00
+ cast_ok_0_4177.jpeg  PASS   FAIL   PASS    0.85    0.95
+ cast_ok_0_3102.jpeg  PASS   FAIL   PASS    0.90    0.95
+
+3. B errors (wrong verdicts), highest confidence first
+            filename label predicted_status  confidence
+ cast_ok_0_6537.jpeg  PASS             FAIL        0.95
+cast_def_0_5205.jpeg  FAIL             PASS        0.95
