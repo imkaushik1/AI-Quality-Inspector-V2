@@ -9,7 +9,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from inspector import inspect_image
+from inspector import MODEL_NAME, inspect_image
 
 EVAL_DIR = Path(__file__).resolve().parent
 IMAGES_DIR = EVAL_DIR / "images"
@@ -25,8 +25,9 @@ PREDICTION_COLUMNS = [
     "severity",
     "confidence",
     "reason",
+    "model",
+    "prompt_version",
 ]
-
 
 def _fmt_rate(value):
     if value is None:
@@ -65,8 +66,13 @@ def parse_args():
             "so batches mix FAIL and PASS. Deterministic across runs."
         ),
     )
+    parser.add_argument(
+        "--prompt",
+        choices=["A", "B"],
+        default="A",
+        help="Prompt version to evaluate. B writes to predictions_B.csv and summary_B.md.",
+    )
     return parser.parse_args()
-
 
 def load_existing_predictions():
     if not PREDICTIONS_PATH.is_file():
@@ -134,10 +140,13 @@ Positive class: **FAIL**
 
 
 def main():
+    global PREDICTIONS_PATH, SUMMARY_PATH
     args = parse_args()
+    if args.prompt == "B":
+        PREDICTIONS_PATH = RESULTS_DIR / "predictions_B.csv"
+        SUMMARY_PATH = RESULTS_DIR / "summary_B.md"
     labels = pd.read_csv(LABELS_PATH)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
     if args.shuffle:
         labels = labels.sample(frac=1, random_state=SHUFFLE_SEED).reset_index(drop=True)
         print(f"Shuffled {len(labels)} labeled images with seed {SHUFFLE_SEED}.")
@@ -178,7 +187,7 @@ def main():
             }
         else:
             with Image.open(image_path) as img:
-                result = inspect_image(img)
+                result = inspect_image(img, args.prompt)
 
         new_rows.append({
             "filename": filename,
@@ -188,6 +197,8 @@ def main():
             "severity": result["severity"],
             "confidence": result["confidence"],
             "reason": result["reason"],
+            "model": MODEL_NAME,
+            "prompt_version": args.prompt,
         })
 
         if result["status"] == "QUOTA_ERROR":

@@ -1,0 +1,4 @@
+filename,label,predicted_status,defect_type,severity,confidence,reason,model,prompt_version
+cast_def_0_6563.jpeg,FAIL,FAIL,burr,minor,0.9,The outer edge of the impeller exhibits significant burrs and an irregular shape.,gemini-2.5-flash,B
+cast_ok_0_2472.jpeg,PASS,PASS,none,none,1.0,"No casting defects such as pinholes, cracks, burrs, or missing material were observed. The surface texture is normal for casting.",gemini-2.5-flash,B
+cast_ok_0_6537.jpeg,PASS,FAIL,other,minor,0.95,"A distinct notch or chip is visible on the outer edge of the impeller, breaking its regular shape.",gemini-2.5-flash,B

@@ -223,3 +223,6 @@ __marimo__/
 
 evals/results/*_old_*
 evals/results/*_mixed_*
+
+evals/results/*_backup*
+evals/run_eval_backup.py

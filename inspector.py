@@ -15,6 +15,18 @@ PROMPT = """
         confidence: a number from 0 to 1
         reason: one short sentence
         """
+PROMPT_B = """
+You are inspecting a cast metal part (impeller). Casting surfaces are naturally slightly rough and textured; that is NORMAL and must NOT be marked as a defect.
+Mark FAIL only for real casting defects: pinholes, blow holes, shrinkage cavities, cracks, burrs, missing material, or notches that break the part's regular shape. A small hole or notch that is not part of a regular design counts as a defect.
+Return only JSON with these keys:
+status: PASS or FAIL
+defect_type: pinhole, blow_hole, crack, burr, shrinkage, other, none
+severity: none, cosmetic, minor, critical
+confidence: a number from 0 to 1
+reason: one short sentence
+"""
+
+PROMPTS = {"A": PROMPT, "B": PROMPT_B}
 
 
 def _parse_secrets_toml(path):
@@ -104,7 +116,7 @@ def _is_timeout_error(exc):
     return isinstance(exc, TimeoutError) or any(marker in err_msg for marker in timeout_markers)
 
 
-def inspect_image(img):
+def inspect_image(img, prompt_version="A"):
     api_key = get_api_key()
     if not api_key:
         return _result("ERROR", reason="API Key not found.")
@@ -116,7 +128,7 @@ def inspect_image(img):
     for attempt in range(max_attempts):
         try:
             response = model.generate_content(
-                [PROMPT, img],
+                [PROMPTS[prompt_version], img],
                 request_options={"timeout": 60},
             )
             text = response.text.strip()
